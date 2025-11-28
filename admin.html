@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unisexx Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="bg"></div>
+
+<main class="container fade-in">
+  <h1 class="title">Админ-панель</h1>
+
+  <div class="card glass" id="auth">
+    <label class="lbl">Введите код доступа</label>
+    <input type="password" id="code" class="input" placeholder="Код">
+    <button id="enter" class="btn">Войти</button>
+    <p id="authMsg" class="msg"></p>
+  </div>
+
+  <div class="card glass" id="panel" style="display:none;">
+    <h2 class="subTitle">Полученные заявки</h2>
+    <div id="list"></div>
+
+    <button id="clear" class="btn danger">Очистить</button>
+  </div>
+</main>
+
+<script>
+const ADMIN_CODE = "1803";
+
+function load(){
+  return JSON.parse(localStorage.getItem("unisexx_subs") || "[]");
+}
+
+document.getElementById("enter").onclick = () => {
+  const code = document.getElementById("code").value.trim();
+  if(code === ADMIN_CODE){
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    render();
+  } else {
+    document.getElementById("authMsg").innerText = "❌ Неверный код!";
+  }
+};
+
+function render(){
+  const arr = load();
+  const list = document.getElementById("list");
+
+  if(arr.length === 0){
+    list.innerHTML = `<p class="msg">Нет заявок</p>`;
+    return;
+  }
+
+  list.innerHTML = arr.map((s,i)=>`
+    <div class="entry">
+      <div class="line"><b>#${i+1}</b> — ${new Date(s.time).toLocaleString()}</div>
+      <div class="line">${s.mode} | <b>${s.guild}</b> | ${s.phone}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById("clear").onclick = () => {
+  if(confirm("Удалить все заявки?")){
+    localStorage.removeItem("unisexx_subs");
+    render();
+  }
+};
+</script>
+</body>
+</html>
